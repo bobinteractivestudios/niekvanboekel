@@ -11,6 +11,19 @@
   --accent-foreground: #ffffff;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #070b1a;
+    --surface: #10182f;
+    --foreground: #ffffff;
+    --muted: #9aa4c2;
+    --border: #2a3357;
+    --accent: #ffffff;
+    --accent-hover: #d8dcea;
+    --accent-foreground: #0b1020;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -36,6 +49,27 @@ body {
 
 .font-serif {
   font-family: var(--font-serif), ui-serif, Georgia, serif;
+}
+
+/*
+ * Star field, shown only when the OS is in dark mode (see the dark
+ * variables above) — in light mode this stays hidden entirely. Fixed to
+ * the viewport (not the page), so it never stretches or repeats on a tall
+ * page — it just stays put behind the content while you scroll. Static
+ * image, no animation.
+ */
+.night-sky {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--background) url("/backgrounds/night-sky.svg") center / cover no-repeat;
+}
+
+@media (prefers-color-scheme: dark) {
+  .night-sky {
+    display: block;
+  }
 }
 
 /*
