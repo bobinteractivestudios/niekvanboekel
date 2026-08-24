@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# memorial site: local data & uploads (not code, keep out of git)
+/data/*.db
+/data/*.db-*
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

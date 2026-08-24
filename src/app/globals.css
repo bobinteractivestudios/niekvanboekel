@@ -2,25 +2,63 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --surface: #ffffff;
+  --foreground: #000000;
+  --muted: #6b6b6b;
+  --border: #e2e2e2;
+  --accent: #000000;
+  --accent-hover: #333333;
+  --accent-foreground: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-serif {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+}
+
+/*
+ * Scattered photos. On phones the items simply stack in one readable column;
+ * from tablet up they take the absolute positions computed in lib/scatter.ts,
+ * spread across the full width. No transitions or animations by design.
+ */
+.scatter-item {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .scatter {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 100 / var(--canvas-h);
+  }
+
+  .scatter-item {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    margin-bottom: 0;
+  }
 }
