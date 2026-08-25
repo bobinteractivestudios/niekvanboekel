@@ -22,11 +22,11 @@ function MediaGrid({ post }: { post: PostWithMedia }) {
     <div className="mt-3 grid grid-cols-3 gap-2">
       {post.media.map((item) =>
         item.kind === "video" ? (
-          <video key={item.id} src={`/uploads/${item.file_name}`} controls className="h-24 w-full rounded-lg object-cover" />
+          <video key={item.id} src={item.url} controls className="h-24 w-full rounded-lg object-cover" />
         ) : (
           <Image
             key={item.id}
-            src={`/uploads/${item.file_name}`}
+            src={item.url}
             alt=""
             width={200}
             height={200}
@@ -109,8 +109,8 @@ export default async function BeheerPage() {
     );
   }
 
-  const pending = getPendingPosts();
-  const reviewed = getReviewedPosts();
+  const pending = await getPendingPosts();
+  const reviewed = await getReviewedPosts();
 
   return (
     <main className="flex-1 px-6 py-12">

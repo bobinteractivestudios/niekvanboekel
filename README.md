@@ -43,12 +43,22 @@ heic) verschijnt automatisch op de homepage — er is geen upload-stap nodig,
 gewoon bestanden in de map plaatsen. De huidige grijze vlakken staan er als
 placeholder; die mag je verwijderen en vervangen.
 
-De foto's worden willekeurig verspreid over de breedte van de pagina, in
-wisselende formaten en zonder dat ze elkaar overlappen. Bij elke keer dat de
-pagina opnieuw geladen wordt, krijgen ze een nieuwe verdeling — dezelfde
-foto's staan dan dus ergens anders. Tijdens het scrollen blijft alles staan
-waar het staat; het verandert alleen bij een herlaadbeurt. Op een telefoon
-staan de foto's netjes onder elkaar in één kolom.
+De foto's én de tekstherinneringen worden samen willekeurig verspreid over
+de breedte van de pagina, in wisselende formaten en zonder dat ze elkaar
+overlappen — een herinnering met een foto erbij staat als één kaartje, een
+herinnering zonder foto is een tekstkaartje, en een losse foto (uit de
+bibliotheek, of zonder tekst ingestuurd) is gewoon een foto. Bij elke keer
+dat de pagina opnieuw geladen wordt, krijgt alles een nieuwe verdeling.
+Tijdens het scrollen blijft alles staan waar het staat; het verandert alleen
+bij een herlaadbeurt. Op een telefoon staat alles netjes onder elkaar in één
+kolom.
+
+Technisch detail: omdat tekst geen vaste hoogte heeft zoals een foto (dat
+hangt af van hoe de tekst afbreekt), wordt de hoogte van een tekstkaartje
+geschat op basis van de lengte van het bericht, met wat extra marge om
+overlap te voorkomen. Bij een uitzonderlijk lang bericht kan een kaartje dus
+iets meer lucht hebben dan strikt nodig — dat weegt niet op tegen het risico
+dat tekst zou overlappen.
 
 Let op voor later: omdat de indeling per bezoek verschilt, moet de homepage
 straks online niet "gecached" worden. Dat is in de code al geregeld
@@ -68,18 +78,67 @@ een CDN of caching-laag voor gezet wordt.
 ## Techniek (voor als je hier later iemand bij vraagt)
 
 - Next.js (App Router) + TypeScript + Tailwind.
-- Opslag: SQLite-bestand in `data/memorial.db` (berichten) en geüploade
-  bestanden in `public/uploads/`. Beide staan buiten git (`.gitignore`) en
-  leven alleen lokaal op deze machine.
+- Opslag heeft twee standen, die de code zelf kiest — jij hoeft daar niets
+  voor om te zetten:
+  - **Lokaal** (`npm run dev`, geen `DATABASE_URL`/`BLOB_READ_WRITE_TOKEN`
+    gezet): een SQLite-bestand in `data/memorial.db` en geüploade bestanden
+    in `public/uploads/`. Beide staan buiten git en leven alleen op deze
+    Mac.
+  - **Productie** (op Vercel, met een Postgres-database en Blob store
+    gekoppeld): berichten in Postgres, geüploade bestanden in Vercel Blob.
+  Zie [`src/lib/db/`](src/lib/db) en [`src/lib/uploads.ts`](src/lib/uploads.ts)
+  als je precies wil weten hoe dat omschakelen werkt.
 - Inloggen op `/beheer` gebeurt met een wachtwoord uit `.env.local`
   (`ADMIN_PASSWORD`), niet met een los account.
 
-### Belangrijk voor als de site straks online komt
+## Live zetten op Vercel, met de domeinnaam van Hostnet
 
-Deze opzet (SQLite-bestand + lokale map voor uploads) werkt prima lokaal,
-maar de meeste hostingplatformen (zoals Vercel) hebben geen permanente
-schijfopslag — daar verdwijnen geüploade bestanden en de database bij elke
-nieuwe deploy. Zodra je een domein hebt en live wil gaan, moet dat stuk
-vervangen worden door bijvoorbeeld een gehoste database (Postgres/SQLite via
-Turso) en cloudopslag voor media (bv. Vercel Blob of S3). Zeg het gewoon
-zodra dat aan de orde is, dan regel ik dat.
+De domeinnaam blijft gewoon bij Hostnet geregistreerd — je wijst 'm alleen
+naar Vercel. Vercel is waar de site zelf continu draait; dat is nodig omdat
+dit geen statische pagina is maar een applicatie die formulieren verwerkt.
+
+**1. Code staat al op GitHub** — [`bobinteractivestudios/niekvanboekel`](https://github.com/bobinteractivestudios/niekvanboekel).
+Vercel bouwt de site rechtstreeks vanuit die repository.
+
+**2. Vercel-account + project**
+1. Ga naar [vercel.com](https://vercel.com) en log in (bijvoorbeeld met je
+   GitHub-account — dat maakt de koppeling met de repository het makkelijkst).
+2. "Add New" → "Project" → kies `bobinteractivestudios/niekvanboekel`.
+3. Bij het instellen van het project: laat de standaardinstellingen staan
+   (Vercel herkent Next.js automatisch) en klik nog niet op "Deploy" — eerst
+   nog de omgevingsvariabelen instellen (volgende stap), anders moet je na
+   deze stap opnieuw deployen.
+
+**3. Omgevingsvariabelen instellen** (Project → Settings → Environment Variables):
+- `ADMIN_PASSWORD` — hetzelfde wachtwoord als lokaal, of een nieuwe.
+- `SESSION_SECRET` — de waarde uit je lokale `.env.local` (of een nieuwe
+  lange willekeurige string).
+
+**4. Opslag koppelen** (Project → Storage):
+- **Postgres**: "Create Database" → Postgres (via de Neon-integratie) →
+  koppel 'm aan dit project. Vercel zet dan automatisch een `DATABASE_URL`
+  (of vergelijkbare naam) klaar — check in Settings → Environment Variables
+  dat er zoiets bijstaat; zo niet, hernoem 'm naar `DATABASE_URL` (dat is de
+  naam die de code verwacht).
+- **Blob**: "Create Database" → Blob → koppel 'm aan dit project. Dit zet
+  automatisch `BLOB_READ_WRITE_TOKEN` klaar.
+- Na het koppelen: nog een keer deployen (Deployments → laatste deploy →
+  "Redeploy") zodat de nieuwe omgevingsvariabelen meegenomen worden.
+
+**5. Domeinnaam koppelen** (Project → Settings → Domains):
+1. Vul `niekvanboekel.nl` in en klik "Add". Vercel laat dan zien welke
+   DNS-records nodig zijn (meestal een A-record naar een IP-adres, en een
+   CNAME voor `www`).
+2. Log in bij Hostnet ([mijn.hostnet.nl](https://mijn.hostnet.nl)), ga naar
+   het DNS-beheer van `niekvanboekel.nl`, en voeg precies die records toe
+   die Vercel aangeeft.
+3. Dit kan tot enkele uren duren voordat het overal doorkomt. Vercel regelt
+   het SSL-certificaat (het slotje/https) daarna automatisch.
+
+**6. Testen**: bezoek de site op de Vercel-URL (`niekvanboekel.vercel.app`
+oid.) en straks op `niekvanboekel.nl` — kijk of de homepage laadt, probeer
+een testbericht via `/deel`, en keur 'm goed via `/beheer`.
+
+Ik kan dit niet namens jou uitvoeren — de accountstappen bij Vercel en
+Hostnet vereisen jouw eigen inloggegevens — maar loop graag met je mee als
+je vastloopt op een van de stappen.

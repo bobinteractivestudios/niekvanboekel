@@ -34,7 +34,7 @@ export function buildFeedItems(
           type: "photo",
           id: media.id,
           timestamp,
-          src: `/uploads/${media.file_name}`,
+          src: media.url,
           kind: media.kind,
         });
       }

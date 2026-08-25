@@ -11,7 +11,7 @@ function formatRelativeDate(iso: string): string {
 
 export function MemoryCard({ post }: { post: PostWithMedia }) {
   return (
-    <div className="mb-4 break-inside-avoid rounded-2xl bg-surface p-5 ring-1 ring-border sm:mb-5 sm:p-6">
+    <div className="rounded-2xl bg-surface p-5 ring-1 ring-border sm:p-6">
       <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">
         {post.body}
       </p>
@@ -24,16 +24,11 @@ export function MemoryCard({ post }: { post: PostWithMedia }) {
         >
           {post.media.map((item) =>
             item.kind === "video" ? (
-              <video
-                key={item.id}
-                src={`/uploads/${item.file_name}`}
-                controls
-                className="w-full rounded-lg"
-              />
+              <video key={item.id} src={item.url} controls className="w-full rounded-lg" />
             ) : (
               <Image
                 key={item.id}
-                src={`/uploads/${item.file_name}`}
+                src={item.url}
                 alt=""
                 width={400}
                 height={400}

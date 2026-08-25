@@ -10,9 +10,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
   const config = getSiteConfig();
-  const posts = getApprovedPosts();
+  const posts = await getApprovedPosts();
   const galleryImages = getGalleryImages();
   const items = buildFeedItems(posts, galleryImages);
 

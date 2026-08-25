@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import type { ScatterLayout } from "@/lib/scatter";
+import { MemoryCard } from "@/components/MemoryCard";
 
 type ScatterVars = CSSProperties & {
   "--x"?: string;
@@ -26,8 +27,10 @@ export function ScatterCanvas({ layout }: { layout: ScatterLayout }) {
         };
 
         return (
-          <figure key={item.id} className="scatter-item" style={itemStyle}>
-            {item.kind === "video" ? (
+          <div key={item.id} className="scatter-item" style={itemStyle}>
+            {item.type === "card" ? (
+              <MemoryCard post={item.post} />
+            ) : item.kind === "video" ? (
               <video src={item.src} controls className="block w-full h-auto" />
             ) : (
               <Image
@@ -39,7 +42,7 @@ export function ScatterCanvas({ layout }: { layout: ScatterLayout }) {
                 className="block w-full h-auto"
               />
             )}
-          </figure>
+          </div>
         );
       })}
     </div>

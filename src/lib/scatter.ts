@@ -1,9 +1,15 @@
 /**
- * Places photos at pseudo-random positions across the full width, without
- * overlapping. A fresh seed is drawn per render, so every page load lays the
- * photos out differently. The packing runs on the server and its result is
- * serialised into the markup, so the client never re-rolls it — the layout is
- * stable while you are on the page, and only changes when you reload.
+ * Places every memory — loose photos/videos and text cards alike — at
+ * pseudo-random positions across the full width, without overlapping. A
+ * fresh seed is drawn per render, so every page load lays things out
+ * differently. The packing runs on the server and its result is serialised
+ * into the markup, so the client never re-rolls it — the layout is stable
+ * while you're on the page, and only changes on reload.
+ *
+ * Photo/video boxes use their real aspect ratio. Text cards don't have
+ * one — their height depends on how the text wraps — so it's estimated in
+ * lib/textMetrics.ts from the body length and the chosen card width, with a
+ * safety margin built in so a card never overlaps whatever lands below it.
  *
  * Pass an explicit `seed` to reproduce a given arrangement (used in tests).
  *
@@ -11,15 +17,29 @@
  * `canvasHeight` units tall, which the CSS turns into percentages.
  */
 
-export type ScatterInput = {
+import type { PostWithMedia } from "@/lib/db";
+import { estimateCardHeightPx, pxToHeightUnits, widthUnitsToPx } from "@/lib/textMetrics";
+
+export type ScatterPhotoEntry = {
   id: string;
+  type: "photo";
   src: string;
   kind: "image" | "video";
   width: number;
   height: number;
 };
 
-export type ScatterPlacement = ScatterInput & {
+export type ScatterCardEntry = {
+  id: string;
+  type: "card";
+  post: PostWithMedia;
+  /** height/width per attached media file, same order as post.media. */
+  mediaAspects: number[];
+};
+
+export type ScatterEntry = ScatterPhotoEntry | ScatterCardEntry;
+
+export type ScatterPlacement = ScatterEntry & {
   /** Left edge, in % of canvas width. */
   x: number;
   /** Top edge, in % of canvas height. */
@@ -34,7 +54,7 @@ export type ScatterLayout = {
   canvasHeight: number;
 };
 
-/** Small, fast seeded PRNG so the arrangement is reproducible. */
+/** Small, fast seeded PRNG so the arrangement is reproducible per seed. */
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
@@ -47,9 +67,9 @@ function mulberry32(seed: number): () => number {
 
 const SLOTS = 400; // horizontal resolution of the skyline, 0.25 units per slot
 const SLOT_WIDTH = 100 / SLOTS;
-const CANDIDATES = 4; // tried positions per photo; lowest landing spot wins
+const CANDIDATES = 4; // tried positions per item; lowest landing spot wins
 
-/** Photo widths shrink as the library grows, so the page stays browsable. */
+/** Widths shrink as the collection grows, so the page stays browsable. */
 function widthRange(count: number): [number, number] {
   if (count <= 6) return [24, 34];
   if (count <= 15) return [18, 27];
@@ -57,14 +77,21 @@ function widthRange(count: number): [number, number] {
   return [11, 18];
 }
 
+/** Text cards stay wide enough to read even in a large collection. */
+function cardWidthRange(count: number): [number, number] {
+  const [min, max] = widthRange(count);
+  return [Math.max(min, 22), Math.max(max, 30)];
+}
+
 export function buildScatterLayout(
-  photos: ScatterInput[],
+  entries: ScatterEntry[],
   seed: number = Math.floor(Math.random() * 0x100000000)
 ): ScatterLayout {
-  if (photos.length === 0) return { placements: [], canvasHeight: 0 };
+  if (entries.length === 0) return { placements: [], canvasHeight: 0 };
 
   const random = mulberry32(seed);
-  const [minWidth, maxWidth] = widthRange(photos.length);
+  const [minPhotoWidth, maxPhotoWidth] = widthRange(entries.length);
+  const [minCardWidth, maxCardWidth] = cardWidthRange(entries.length);
 
   const skyline = new Array<number>(SLOTS).fill(0);
   const placements: ScatterPlacement[] = [];
@@ -77,9 +104,22 @@ export function buildScatterLayout(
     return highest;
   };
 
-  for (const photo of photos) {
-    const w = minWidth + random() * (maxWidth - minWidth);
-    const h = w * (photo.height / photo.width);
+  for (const entry of entries) {
+    let w: number;
+    let h: number;
+
+    if (entry.type === "photo") {
+      w = minPhotoWidth + random() * (maxPhotoWidth - minPhotoWidth);
+      h = w * (entry.height / entry.width);
+    } else {
+      w = minCardWidth + random() * (maxCardWidth - minCardWidth);
+      const heightPx = estimateCardHeightPx(
+        entry.post.body,
+        entry.mediaAspects,
+        widthUnitsToPx(w)
+      );
+      h = pxToHeightUnits(heightPx);
+    }
 
     // Try a few random horizontal spots and keep the one that sits highest up,
     // which fills gaps instead of stacking everything into towers.
@@ -100,7 +140,7 @@ export function buildScatterLayout(
       skyline[i] = y + h;
     }
 
-    placements.push({ ...photo, x, y, w });
+    placements.push({ ...entry, x, y, w });
   }
 
   const canvasHeight = Math.max(...skyline);

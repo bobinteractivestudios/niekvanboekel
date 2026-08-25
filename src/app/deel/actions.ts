@@ -1,7 +1,6 @@
 "use server";
 
-import { randomUUID } from "crypto";
-import { getDb } from "@/lib/db";
+import { createPost } from "@/lib/db";
 import { saveUploadedFile, UploadError, MAX_FILES_PER_POST, type SavedFile } from "@/lib/uploads";
 
 export type SubmitState = {
@@ -39,39 +38,12 @@ export async function submitMemory(
     };
   }
 
-  const db = getDb();
-  const postId = randomUUID();
-  const now = new Date().toISOString();
-
   try {
-    const savedFiles: SavedFile[] = [];
+    const media: SavedFile[] = [];
     for (const file of files) {
-      savedFiles.push(await saveUploadedFile(file));
+      media.push(await saveUploadedFile(file));
     }
-
-    const insertPost = db.prepare(
-      `INSERT INTO posts (id, author_name, body, status, created_at)
-       VALUES (?, ?, ?, 'pending', ?)`
-    );
-    const insertMedia = db.prepare(
-      `INSERT INTO media (id, post_id, file_name, mime_type, kind, created_at)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    );
-
-    const transaction = db.transaction(() => {
-      insertPost.run(postId, authorName || null, body || null, now);
-      for (const saved of savedFiles) {
-        insertMedia.run(
-          randomUUID(),
-          postId,
-          saved.fileName,
-          saved.mimeType,
-          saved.kind,
-          now
-        );
-      }
-    });
-    transaction();
+    await createPost({ authorName: authorName || null, body: body || null, media });
   } catch (error) {
     if (error instanceof UploadError) {
       return { status: "error", message: error.message };
