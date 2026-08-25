@@ -81,8 +81,8 @@ een CDN of caching-laag voor gezet wordt.
 - Next.js (App Router) + TypeScript + Tailwind.
 - Opslag heeft twee standen, die de code zelf kiest — jij hoeft daar niets
   voor om te zetten:
-  - **Lokaal** (`npm run dev`, geen `DATABASE_URL`/`BLOB_READ_WRITE_TOKEN`
-    gezet): een SQLite-bestand in `data/memorial.db` en geüploade bestanden
+  - **Lokaal** (`npm run dev`, geen database- of Blob-variabelen gezet): een
+    SQLite-bestand in `data/memorial.db` en geüploade bestanden
     in `public/uploads/`. Beide staan buiten git en leven alleen op deze
     Mac.
   - **Productie** (op Vercel, met een Postgres-database en Blob store
@@ -121,8 +121,10 @@ Vercel bouwt de site rechtstreeks vanuit die repository.
   klaar als environment variable — meestal `DATABASE_URL`, maar bij de
   Neon-integratie heet die vaak `STORAGE_DATABASE_URL`. De code kijkt naar
   beide namen, dus dat hoef je niet zelf gelijk te trekken.
-- **Blob**: "Create Database" → Blob → koppel 'm aan dit project. Dit zet
-  automatisch `BLOB_READ_WRITE_TOKEN` klaar.
+- **Blob**: "Create Database" → Blob → koppel 'm aan dit project. Vercel zet
+  hiervoor tegenwoordig meestal geen los token meer klaar, maar
+  `BLOB_STORE_ID` — de code herkent dat net zo goed en regelt de rest
+  (authenticatie) automatisch via Vercel zelf.
 - Na het koppelen: nog een keer deployen (Deployments → laatste deploy →
   "Redeploy") zodat de nieuwe omgevingsvariabelen meegenomen worden.
 

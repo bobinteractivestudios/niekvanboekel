@@ -60,14 +60,26 @@ function validate(file: File): "image" | "video" {
 }
 
 /**
- * Saves to Vercel Blob when BLOB_READ_WRITE_TOKEN is set (production),
- * otherwise to public/uploads on local disk (development).
+ * Vercel Blob is available either via a static BLOB_READ_WRITE_TOKEN, or
+ * (the current default when a Blob store is attached from the dashboard)
+ * via BLOB_STORE_ID plus an OIDC token Vercel injects automatically at
+ * runtime — the @vercel/blob SDK picks whichever is present on its own.
+ * We only need to know whether Blob is configured at all, to choose it
+ * over the local-disk fallback.
+ */
+function blobConfigured(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+}
+
+/**
+ * Saves to Vercel Blob when configured (production), otherwise to
+ * public/uploads on local disk (development).
  */
 export async function saveUploadedFile(file: File): Promise<SavedFile> {
   const kind = validate(file);
   const fileName = `${randomUUID()}.${extensionFor(file.type)}`;
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (blobConfigured()) {
     const blob = await put(fileName, file, { access: "public", contentType: file.type });
     return { url: blob.url, mimeType: file.type, kind };
   }
