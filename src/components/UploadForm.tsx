@@ -1,14 +1,19 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
+import { upload as uploadPresigned } from "@vercel/blob/client";
 import { submitMemory, type SubmitState } from "@/app/deel/actions";
+import { MAX_FILES_PER_POST, extensionFor, kindForType } from "@/lib/uploadShared";
 
 const initialState: SubmitState = { status: "idle" };
 
-export function UploadForm() {
+export function UploadForm({ blobEnabled }: { blobEnabled: boolean }) {
   const [state, formAction, isPending] = useActionState(submitMemory, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [previews, setPreviews] = useState<{ url: string; isVideo: boolean }[]>([]);
+  const [uploadStatus, setUploadStatus] = useState<{ busy: boolean; error?: string }>({
+    busy: false,
+  });
 
   function handleFilesChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -30,10 +35,64 @@ export function UploadForm() {
     );
   }
 
+  const busy = isPending || uploadStatus.busy;
+
   return (
     <form
       ref={formRef}
       action={async (formData) => {
+        setUploadStatus({ busy: false, error: undefined });
+
+        if (blobEnabled) {
+          // Photos/videos go straight from the browser to Vercel Blob —
+          // server actions on Vercel cap request bodies at ~4.5MB, which
+          // real photos blow past. Only the resulting URLs travel through
+          // the server action below.
+          const files = formData
+            .getAll("files")
+            .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+          formData.delete("files");
+
+          if (files.length > MAX_FILES_PER_POST) {
+            setUploadStatus({
+              busy: false,
+              error: `Je kan maximaal ${MAX_FILES_PER_POST} bestanden per keer delen.`,
+            });
+            return;
+          }
+
+          if (files.length > 0) {
+            setUploadStatus({ busy: true });
+            const uploaded = [];
+            try {
+              for (const file of files) {
+                const kind = kindForType(file.type);
+                if (!kind) {
+                  throw new Error(`Bestandstype niet ondersteund: ${file.type || "onbekend"}`);
+                }
+                const pathname = `${crypto.randomUUID()}.${extensionFor(file.type)}`;
+                const blob = await uploadPresigned(pathname, file, {
+                  access: "public",
+                  handleUploadUrl: "/api/blob-upload",
+                  contentType: file.type,
+                });
+                uploaded.push({ url: blob.url, mimeType: file.type, kind });
+              }
+            } catch (error) {
+              setUploadStatus({
+                busy: false,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "Uploaden is niet gelukt. Probeer het opnieuw.",
+              });
+              return;
+            }
+            formData.set("uploadedMedia", JSON.stringify(uploaded));
+            setUploadStatus({ busy: false });
+          }
+        }
+
         await formAction(formData);
         formRef.current?.reset();
         previews.forEach((p) => URL.revokeObjectURL(p.url));
@@ -105,16 +164,20 @@ export function UploadForm() {
         )}
       </div>
 
-      {state.status === "error" && (
-        <p className="text-sm text-red-600">{state.message}</p>
+      {(state.status === "error" || uploadStatus.error) && (
+        <p className="text-sm text-red-600">{uploadStatus.error ?? state.message}</p>
       )}
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={busy}
         className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
       >
-        {isPending ? "Bezig met versturen..." : "Herinnering delen"}
+        {uploadStatus.busy
+          ? "Bezig met uploaden..."
+          : isPending
+            ? "Bezig met versturen..."
+            : "Herinnering delen"}
       </button>
     </form>
   );

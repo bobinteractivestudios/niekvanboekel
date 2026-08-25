@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSiteConfig } from "@/lib/config";
+import { isBlobConfigured } from "@/lib/uploads";
 import { UploadForm } from "@/components/UploadForm";
 
 export default function DeelPage() {
@@ -20,7 +21,7 @@ export default function DeelPage() {
         </p>
 
         <div className="mt-10">
-          <UploadForm />
+          <UploadForm blobEnabled={isBlobConfigured()} />
         </div>
       </div>
     </main>
