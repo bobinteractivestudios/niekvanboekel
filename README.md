@@ -116,10 +116,10 @@ Vercel bouwt de site rechtstreeks vanuit die repository.
 
 **4. Opslag koppelen** (Project → Storage):
 - **Postgres**: "Create Database" → Postgres (via de Neon-integratie) →
-  koppel 'm aan dit project. Vercel zet dan automatisch een `DATABASE_URL`
-  (of vergelijkbare naam) klaar — check in Settings → Environment Variables
-  dat er zoiets bijstaat; zo niet, hernoem 'm naar `DATABASE_URL` (dat is de
-  naam die de code verwacht).
+  koppel 'm aan dit project. Vercel zet dan automatisch een connectie-string
+  klaar als environment variable — meestal `DATABASE_URL`, maar bij de
+  Neon-integratie heet die vaak `STORAGE_DATABASE_URL`. De code kijkt naar
+  beide namen, dus dat hoef je niet zelf gelijk te trekken.
 - **Blob**: "Create Database" → Blob → koppel 'm aan dit project. Dit zet
   automatisch `BLOB_READ_WRITE_TOKEN` klaar.
 - Na het koppelen: nog een keer deployen (Deployments → laatste deploy →

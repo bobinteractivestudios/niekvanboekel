@@ -1,3 +1,12 @@
+/**
+ * Vercel's Postgres marketplace integrations don't all use the same env var
+ * name (e.g. the Neon integration uses STORAGE_DATABASE_URL) — check the
+ * conventional name first, then fall back to that.
+ */
+export function resolveDatabaseUrl(): string | undefined {
+  return process.env.DATABASE_URL ?? process.env.STORAGE_DATABASE_URL;
+}
+
 export type PostStatus = "pending" | "approved" | "rejected";
 
 export type MediaRow = {

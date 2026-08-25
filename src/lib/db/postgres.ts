@@ -1,11 +1,13 @@
 /**
- * Production backend: hosted Postgres, used whenever DATABASE_URL is set
+ * Production backend: hosted Postgres, used whenever a database URL is set
  * (i.e. on Vercel, once a Postgres storage integration is attached) — see
- * ../db.ts for how the backend is picked.
+ * types.ts for the exact env var names checked, and index.ts for how the
+ * backend gets picked.
  */
 import { Pool } from "pg";
 import { randomUUID } from "crypto";
 import type { CreatePostInput, MediaRow, PostRow, PostWithMedia } from "./types";
+import { resolveDatabaseUrl } from "./types";
 
 declare global {
   var __memorialPgPool: Pool | undefined;
@@ -15,7 +17,7 @@ declare global {
 function getPool(): Pool {
   if (!global.__memorialPgPool) {
     global.__memorialPgPool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: resolveDatabaseUrl(),
       ssl: { rejectUnauthorized: false },
       max: 3,
     });

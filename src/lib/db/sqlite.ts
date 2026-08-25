@@ -1,6 +1,6 @@
 /**
- * Local development backend: a SQLite file on disk. Used whenever
- * DATABASE_URL isn't set — see ../db.ts for how the backend is picked.
+ * Local development backend: a SQLite file on disk. Used whenever no
+ * database URL is set — see index.ts for how the backend is picked.
  */
 import Database from "better-sqlite3";
 import fs from "fs";
