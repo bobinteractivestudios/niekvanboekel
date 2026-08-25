@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { upload as uploadPresigned } from "@vercel/blob/client";
+import { uploadPresigned } from "@vercel/blob/client";
 import { submitMemory, type SubmitState } from "@/app/deel/actions";
 import { MAX_FILES_PER_POST, extensionFor, kindForType } from "@/lib/uploadShared";
 
