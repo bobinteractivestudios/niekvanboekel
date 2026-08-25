@@ -2,7 +2,7 @@
 
 Een rustige plek om herinneringen te delen: foto's, video's en tekstjes,
 gebundeld rond één centrale foto en een officiële tekst. Bezoekers kunnen zelf
-iets uploaden; dat wordt pas zichtbaar nadat jij het hebt goedgekeurd.
+iets uploaden; dat staat direct op de pagina, zonder tussenstap.
 
 ## De site lokaal starten
 
@@ -10,8 +10,9 @@ iets uploaden; dat wordt pas zichtbaar nadat jij het hebt goedgekeurd.
 npm run dev
 ```
 
-Open daarna [http://localhost:3000](http://localhost:3000). De moderatiepagina
-staat op [http://localhost:3000/beheer](http://localhost:3000/beheer).
+Open daarna [http://localhost:3000](http://localhost:3000). Het beheerscherm
+(voor het verwijderen van berichten) staat op
+[http://localhost:3000/beheer](http://localhost:3000/beheer).
 
 Het admin-wachtwoord staat in `.env.local` (bestand `ADMIN_PASSWORD`). Pas dit
 gerust aan naar iets dat jij makkelijk onthoudt — herstart daarna `npm run dev`.
@@ -69,11 +70,11 @@ een CDN of caching-laag voor gezet wordt.
 
 - Iedereen kan via de knop "Deel een herinnering" (`/deel`) een tekstje,
   foto('s) of video('s) insturen — of een combinatie daarvan.
-- Nieuwe bijdragen komen in de wachtrij ("Te beoordelen") op `/beheer` en zijn
-  nog niet zichtbaar voor bezoekers.
-- Na goedkeuren verschijnt de bijdrage op de homepage: bijdragen met tekst als
-  kaartje, bijdragen met alleen foto's/video's los tussen de andere foto's.
-- Je kan een bijdrage ook afwijzen, of achteraf alsnog verwijderen.
+- Dat verschijnt meteen op de homepage: bijdragen met tekst als kaartje,
+  bijdragen met alleen foto's/video's los tussen de andere foto's. Er is
+  geen goedkeurstap — alles staat meteen live.
+- Op `/beheer` (met wachtwoord) zie je alles wat gedeeld is, met een
+  "Verwijderen"-knop erbij voor als er iets ongepasts tussen staat.
 
 ## Techniek (voor als je hier later iemand bij vraagt)
 

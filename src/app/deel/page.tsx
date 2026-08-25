@@ -16,8 +16,7 @@ export default function DeelPage() {
           Deel een herinnering aan {config.name}
         </h1>
         <p className="mt-3 text-sm text-muted">
-          Je bericht wordt eerst bekeken voordat het zichtbaar wordt voor
-          anderen. Dat kan even duren — bedankt voor je geduld.
+          Je bericht komt direct op de pagina te staan.
         </p>
 
         <div className="mt-10">

@@ -7,8 +7,6 @@ export function resolveDatabaseUrl(): string | undefined {
   return process.env.DATABASE_URL ?? process.env.STORAGE_DATABASE_URL;
 }
 
-export type PostStatus = "pending" | "approved" | "rejected";
-
 export type MediaRow = {
   id: string;
   post_id: string;
@@ -23,9 +21,7 @@ export type PostRow = {
   id: string;
   author_name: string | null;
   body: string | null;
-  status: PostStatus;
   created_at: string;
-  reviewed_at: string | null;
 };
 
 export type PostWithMedia = PostRow & { media: MediaRow[] };
@@ -40,11 +36,9 @@ export type CreatePostInput = {
 
 /** Implemented by both the local (SQLite) and production (Postgres) backends — see index.ts for how one gets picked. */
 export interface DbBackend {
-  getApprovedPosts(): Promise<PostWithMedia[]>;
-  getPendingPosts(): Promise<PostWithMedia[]>;
-  getReviewedPosts(): Promise<PostWithMedia[]>;
+  /** Every shared memory, newest first — everything is visible immediately, no review step. */
+  getAllPosts(): Promise<PostWithMedia[]>;
   createPost(input: CreatePostInput): Promise<void>;
-  setPostStatus(id: string, status: "approved" | "rejected"): Promise<void>;
   /** Deletes the post and its media rows, returning the media that was attached so the caller can delete the actual files/blobs. */
   removePost(id: string): Promise<MediaRow[]>;
 }

@@ -27,6 +27,9 @@ function getPool(): Pool {
 
 function ensureSchema(): Promise<void> {
   if (!global.__memorialPgSchema) {
+    // status/reviewed_at are unused leftovers from an earlier moderation
+    // queue — kept in the schema so an already-live database doesn't need
+    // a migration, but nothing reads or writes them meaningfully any more.
     global.__memorialPgSchema = getPool()
       .query(
         `
@@ -34,7 +37,7 @@ function ensureSchema(): Promise<void> {
           id TEXT PRIMARY KEY,
           author_name TEXT,
           body TEXT,
-          status TEXT NOT NULL DEFAULT 'pending',
+          status TEXT NOT NULL DEFAULT 'approved',
           created_at TEXT NOT NULL,
           reviewed_at TEXT
         );
@@ -48,7 +51,6 @@ function ensureSchema(): Promise<void> {
           created_at TEXT NOT NULL
         );
 
-        CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
         CREATE INDEX IF NOT EXISTS idx_media_post_id ON media(post_id);
         `
       )
@@ -57,43 +59,25 @@ function ensureSchema(): Promise<void> {
   return global.__memorialPgSchema;
 }
 
-async function attachMedia(posts: PostRow[]): Promise<PostWithMedia[]> {
+export async function getAllPosts(): Promise<PostWithMedia[]> {
+  await ensureSchema();
+  const pool = getPool();
+  const { rows: posts } = await pool.query<PostRow>(
+    `SELECT id, author_name, body, created_at FROM posts ORDER BY created_at DESC`
+  );
   if (posts.length === 0) return [];
-  const { rows } = await getPool().query(
+
+  const { rows: media } = await pool.query<MediaRow>(
     `SELECT * FROM media WHERE post_id = ANY($1) ORDER BY created_at ASC`,
     [posts.map((post) => post.id)]
   );
   const byPost = new Map<string, MediaRow[]>();
-  for (const row of rows as MediaRow[]) {
+  for (const row of media) {
     const list = byPost.get(row.post_id) ?? [];
     list.push(row);
     byPost.set(row.post_id, list);
   }
   return posts.map((post) => ({ ...post, media: byPost.get(post.id) ?? [] }));
-}
-
-export async function getApprovedPosts(): Promise<PostWithMedia[]> {
-  await ensureSchema();
-  const { rows } = await getPool().query(
-    `SELECT * FROM posts WHERE status = 'approved' ORDER BY created_at DESC`
-  );
-  return attachMedia(rows as PostRow[]);
-}
-
-export async function getPendingPosts(): Promise<PostWithMedia[]> {
-  await ensureSchema();
-  const { rows } = await getPool().query(
-    `SELECT * FROM posts WHERE status = 'pending' ORDER BY created_at ASC`
-  );
-  return attachMedia(rows as PostRow[]);
-}
-
-export async function getReviewedPosts(): Promise<PostWithMedia[]> {
-  await ensureSchema();
-  const { rows } = await getPool().query(
-    `SELECT * FROM posts WHERE status IN ('approved', 'rejected') ORDER BY reviewed_at DESC`
-  );
-  return attachMedia(rows as PostRow[]);
 }
 
 export async function createPost(input: CreatePostInput): Promise<void> {
@@ -105,7 +89,7 @@ export async function createPost(input: CreatePostInput): Promise<void> {
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO posts (id, author_name, body, status, created_at) VALUES ($1, $2, $3, 'pending', $4)`,
+      `INSERT INTO posts (id, author_name, body, created_at) VALUES ($1, $2, $3, $4)`,
       [postId, input.authorName, input.body, now]
     );
     for (const media of input.media) {
@@ -123,19 +107,10 @@ export async function createPost(input: CreatePostInput): Promise<void> {
   }
 }
 
-export async function setPostStatus(id: string, status: "approved" | "rejected"): Promise<void> {
-  await ensureSchema();
-  await getPool().query(`UPDATE posts SET status = $1, reviewed_at = $2 WHERE id = $3`, [
-    status,
-    new Date().toISOString(),
-    id,
-  ]);
-}
-
 export async function removePost(id: string): Promise<MediaRow[]> {
   await ensureSchema();
   const pool = getPool();
-  const { rows } = await pool.query(`SELECT * FROM media WHERE post_id = $1`, [id]);
+  const { rows } = await pool.query<MediaRow>(`SELECT * FROM media WHERE post_id = $1`, [id]);
   await pool.query(`DELETE FROM posts WHERE id = $1`, [id]);
-  return rows as MediaRow[];
+  return rows;
 }

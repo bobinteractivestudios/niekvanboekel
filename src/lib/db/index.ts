@@ -16,28 +16,16 @@ function getBackend(): Promise<DbBackend> {
   return resolveDatabaseUrl() ? import("./postgres") : import("./sqlite");
 }
 
-export async function getApprovedPosts() {
-  return (await getBackend()).getApprovedPosts();
-}
-
-export async function getPendingPosts() {
-  return (await getBackend()).getPendingPosts();
-}
-
-export async function getReviewedPosts() {
-  return (await getBackend()).getReviewedPosts();
+export async function getAllPosts() {
+  return (await getBackend()).getAllPosts();
 }
 
 export async function createPost(input: CreatePostInput) {
   return (await getBackend()).createPost(input);
 }
 
-export async function setPostStatus(id: string, status: "approved" | "rejected") {
-  return (await getBackend()).setPostStatus(id, status);
-}
-
 export async function removePost(id: string) {
   return (await getBackend()).removePost(id);
 }
 
-export type { CreatePostInput, MediaRow, NewMedia, PostRow, PostStatus, PostWithMedia } from "./types";
+export type { CreatePostInput, MediaRow, NewMedia, PostRow, PostWithMedia } from "./types";

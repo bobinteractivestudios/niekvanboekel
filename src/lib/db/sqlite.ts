@@ -16,12 +16,15 @@ declare global {
 }
 
 function ensureSchema(db: Database.Database): void {
+  // status/reviewed_at are unused leftovers from an earlier moderation
+  // queue — kept in the schema so existing local databases don't need a
+  // migration, but nothing reads or writes them meaningfully any more.
   db.exec(`
     CREATE TABLE IF NOT EXISTS posts (
       id TEXT PRIMARY KEY,
       author_name TEXT,
       body TEXT,
-      status TEXT NOT NULL DEFAULT 'pending',
+      status TEXT NOT NULL DEFAULT 'approved',
       created_at TEXT NOT NULL,
       reviewed_at TEXT
     );
@@ -47,10 +50,7 @@ function ensureSchema(db: Database.Database): void {
     ).run();
   }
 
-  db.exec(`
-    CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
-    CREATE INDEX IF NOT EXISTS idx_media_post_id ON media(post_id);
-  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_media_post_id ON media(post_id)`);
 }
 
 function getDb(): Database.Database {
@@ -67,7 +67,11 @@ function getDb(): Database.Database {
   return global.__memorialSqliteDb;
 }
 
-function attachMedia(db: Database.Database, posts: PostRow[]): PostWithMedia[] {
+export async function getAllPosts(): Promise<PostWithMedia[]> {
+  const db = getDb();
+  const posts = db
+    .prepare("SELECT id, author_name, body, created_at FROM posts ORDER BY created_at DESC")
+    .all() as PostRow[];
   if (posts.length === 0) return [];
   const mediaStmt = db.prepare<[string]>("SELECT * FROM media WHERE post_id = ? ORDER BY created_at ASC");
   return posts.map((post) => ({
@@ -76,37 +80,13 @@ function attachMedia(db: Database.Database, posts: PostRow[]): PostWithMedia[] {
   }));
 }
 
-export async function getApprovedPosts(): Promise<PostWithMedia[]> {
-  const db = getDb();
-  const posts = db
-    .prepare("SELECT * FROM posts WHERE status = 'approved' ORDER BY created_at DESC")
-    .all() as PostRow[];
-  return attachMedia(db, posts);
-}
-
-export async function getPendingPosts(): Promise<PostWithMedia[]> {
-  const db = getDb();
-  const posts = db
-    .prepare("SELECT * FROM posts WHERE status = 'pending' ORDER BY created_at ASC")
-    .all() as PostRow[];
-  return attachMedia(db, posts);
-}
-
-export async function getReviewedPosts(): Promise<PostWithMedia[]> {
-  const db = getDb();
-  const posts = db
-    .prepare("SELECT * FROM posts WHERE status IN ('approved', 'rejected') ORDER BY reviewed_at DESC")
-    .all() as PostRow[];
-  return attachMedia(db, posts);
-}
-
 export async function createPost(input: CreatePostInput): Promise<void> {
   const db = getDb();
   const postId = randomUUID();
   const now = new Date().toISOString();
 
   const insertPost = db.prepare(
-    `INSERT INTO posts (id, author_name, body, status, created_at) VALUES (?, ?, ?, 'pending', ?)`
+    `INSERT INTO posts (id, author_name, body, created_at) VALUES (?, ?, ?, ?)`
   );
   const insertMedia = db.prepare(
     `INSERT INTO media (id, post_id, url, mime_type, kind, created_at) VALUES (?, ?, ?, ?, ?, ?)`
@@ -119,15 +99,6 @@ export async function createPost(input: CreatePostInput): Promise<void> {
     }
   });
   transaction();
-}
-
-export async function setPostStatus(id: string, status: "approved" | "rejected"): Promise<void> {
-  const db = getDb();
-  db.prepare("UPDATE posts SET status = ?, reviewed_at = ? WHERE id = ?").run(
-    status,
-    new Date().toISOString(),
-    id
-  );
 }
 
 export async function removePost(id: string): Promise<MediaRow[]> {

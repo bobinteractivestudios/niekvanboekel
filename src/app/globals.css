@@ -52,9 +52,9 @@ body {
 }
 
 /*
- * Star field, shown only when the OS is in dark mode (see the dark
- * variables above) — in light mode this stays hidden entirely. Fixed to
- * the viewport (not the page), so it never stretches or repeats on a tall
+ * Star field over a deep-blue-to-black gradient, shown only when the OS is
+ * in dark mode — in light mode this stays hidden entirely. Fixed to the
+ * viewport (not the page), so it never stretches or repeats on a tall
  * page — it just stays put behind the content while you scroll. Static
  * image, no animation.
  */
@@ -63,7 +63,10 @@ body {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: var(--background) url("/backgrounds/night-sky.svg") center / cover no-repeat;
+  background-image: url("/backgrounds/night-sky.svg"), linear-gradient(180deg, #001b81 0%, #070b1a 100%);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -57,7 +57,6 @@ export async function submitMemory(
 
   return {
     status: "success",
-    message:
-      "Bedankt voor het delen. Je herinnering wordt eerst bekeken voordat die zichtbaar wordt op de pagina.",
+    message: "Bedankt voor het delen. Je herinnering staat direct op de pagina.",
   };
 }

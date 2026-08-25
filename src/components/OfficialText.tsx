@@ -6,7 +6,7 @@ export function OfficialText({ paragraphs }: { paragraphs: string[] }) {
         {paragraphs.map((paragraph, index) => (
           <p
             key={index}
-            className="font-serif italic text-lg sm:text-xl leading-relaxed text-foreground"
+            className="font-serif text-lg sm:text-xl leading-relaxed text-foreground"
           >
             {paragraph}
           </p>

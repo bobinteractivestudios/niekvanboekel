@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { setPostStatus, removePost } from "@/lib/db";
+import { removePost } from "@/lib/db";
 import { deleteUploadedFile } from "@/lib/uploads";
 import { checkPassword, createSession, destroySession, isAuthenticated } from "@/lib/auth";
 
@@ -26,20 +26,6 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
 export async function logout(): Promise<void> {
   await destroySession();
   redirect("/beheer");
-}
-
-export async function approvePost(id: string): Promise<void> {
-  await requireAuth();
-  await setPostStatus(id, "approved");
-  revalidatePath("/beheer");
-  revalidatePath("/");
-}
-
-export async function rejectPost(id: string): Promise<void> {
-  await requireAuth();
-  await setPostStatus(id, "rejected");
-  revalidatePath("/beheer");
-  revalidatePath("/");
 }
 
 export async function deletePost(id: string): Promise<void> {

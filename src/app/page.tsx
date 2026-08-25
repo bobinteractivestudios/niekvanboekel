@@ -1,5 +1,5 @@
 import { getSiteConfig } from "@/lib/config";
-import { getApprovedPosts } from "@/lib/db";
+import { getAllPosts } from "@/lib/db";
 import { getGalleryImages } from "@/lib/gallery";
 import { buildFeedItems } from "@/lib/feed";
 import { Hero } from "@/components/Hero";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const config = getSiteConfig();
-  const posts = await getApprovedPosts();
+  const posts = await getAllPosts();
   const galleryImages = getGalleryImages();
   const items = buildFeedItems(posts, galleryImages);
 
