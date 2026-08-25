@@ -12,7 +12,7 @@ export function AdminLoginForm() {
     <div className="mx-auto max-w-sm px-6 py-24">
       <h1 className="font-serif text-2xl text-foreground">Beheer</h1>
       <p className="mt-2 text-sm text-muted">
-        Log in om gedeelde herinneringen te bekijken en goed te keuren.
+        Log in om gedeelde herinneringen te bekijken en te verwijderen.
       </p>
       <form action={formAction} className="mt-8 space-y-4">
         <input
