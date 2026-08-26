@@ -4,6 +4,10 @@
  * pair + the :has() rule in globals.css) — no client JS needed for a
  * purely visual choice. Hidden below the desktop breakpoint, where the
  * scattered layout doesn't apply anyway.
+ *
+ * Icon artwork supplied as ready-made SVGs; ported in with fill/stroke
+ * swapped to currentColor so each icon (blocks and frame together) follows
+ * the button's muted/selected color state.
  */
 export function ScatterViewToggle() {
   return (
@@ -11,16 +15,42 @@ export function ScatterViewToggle() {
       <label className="cursor-pointer">
         <input type="radio" name="scatterView" value="scatter" defaultChecked className="peer sr-only" />
         <span
-          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md border-2 border-border text-muted transition-colors peer-checked:border-foreground peer-checked:text-foreground"
+          className="flex h-9 w-9 items-center justify-center text-muted transition-colors peer-checked:text-foreground"
           title="Verspreid"
         >
-          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="block">
-            <rect x="6" y="8" width="34" height="20" fill="currentColor" />
-            <rect x="84" y="-4" width="20" height="20" fill="currentColor" />
-            <rect x="40" y="14" width="28" height="48" fill="currentColor" />
-            <rect x="76" y="36" width="26" height="28" fill="currentColor" />
-            <rect x="-2" y="68" width="28" height="34" fill="currentColor" />
-            <rect x="64" y="78" width="28" height="24" fill="currentColor" />
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 1000 1000"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ strokeLinecap: "round", strokeLinejoin: "round", strokeMiterlimit: 1.5 }}
+          >
+            <g transform="matrix(1.152118,0,0,0.997009,-76.039794,2.991027)">
+              <g transform="matrix(1,0,0,0.218274,-67,0)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.593702,0,0,0.114213,714.890433,-3)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.838473,0,0,0.34742,624.569977,200.908)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(1.000368,0,0,0.34742,484.994476,794.674618)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(1,0,0,0.649478,-67,616.158648)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(1.000368,0,0,0.578229,248.907567,64.5)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(1.000368,0,0,0.461618,366.951022,479.750648)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+            </g>
+            <g transform="matrix(2.5,0,0,2.5,-1298.478452,-750)">
+              <rect x="519.391" y="300" width="400" height="400" fill="none" stroke="currentColor" strokeWidth="3.33" />
+            </g>
           </svg>
         </span>
         <span className="sr-only">Verspreide weergave</span>
@@ -29,15 +59,39 @@ export function ScatterViewToggle() {
       <label className="cursor-pointer">
         <input type="radio" name="scatterView" value="modular" className="peer sr-only" />
         <span
-          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md border-2 border-border text-muted transition-colors peer-checked:border-foreground peer-checked:text-foreground"
+          className="flex h-9 w-9 items-center justify-center text-muted transition-colors peer-checked:text-foreground"
           title="Modulair"
         >
-          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="block">
-            <rect x="0" y="14" width="28" height="16" fill="currentColor" />
-            <rect x="0" y="34" width="28" height="66" fill="currentColor" />
-            <rect x="34" y="8" width="30" height="60" fill="currentColor" />
-            <rect x="72" y="14" width="28" height="42" fill="currentColor" />
-            <rect x="72" y="62" width="28" height="24" fill="currentColor" />
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 1000 1000"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ strokeLinecap: "round", strokeLinejoin: "round", strokeMiterlimit: 1.5 }}
+          >
+            <g transform="matrix(1.152118,0,0,0.997009,-42.08515,2.991027)">
+              <g transform="matrix(0.91715,0,0,0.218274,-49.496716,0)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.91715,0,0,1.383249,-49.496716,182.5)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.91715,0,0,1,240.322564,0)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.91715,0,0,0.522843,240.322564,691)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.91715,0,0,0.676819,530.111191,-3)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+              <g transform="matrix(0.91715,0,0,0.8511,530.111191,497)">
+                <rect x="133" y="0" width="236" height="591" fill="currentColor" />
+              </g>
+            </g>
+            <g transform="matrix(2.5,0,0,2.5,-1298.478452,-750)">
+              <rect x="519.391" y="300" width="400" height="400" fill="none" stroke="currentColor" strokeWidth="3.33" />
+            </g>
           </svg>
         </span>
         <span className="sr-only">Modulaire weergave</span>
