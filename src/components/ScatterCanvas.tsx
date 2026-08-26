@@ -1,7 +1,7 @@
-import Image from "next/image";
 import type { CSSProperties } from "react";
 import type { ScatterLayout } from "@/lib/scatter";
 import { MemoryCard } from "@/components/MemoryCard";
+import { ClickableImage } from "@/components/ClickableImage";
 
 type ScatterVars = CSSProperties & {
   "--x"?: string;
@@ -33,9 +33,8 @@ export function ScatterCanvas({ layout }: { layout: ScatterLayout }) {
             ) : item.kind === "video" ? (
               <video src={item.src} controls className="block w-full h-auto" />
             ) : (
-              <Image
+              <ClickableImage
                 src={item.src}
-                alt=""
                 width={item.width}
                 height={item.height}
                 sizes="(min-width: 768px) 30vw, 100vw"

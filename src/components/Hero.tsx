@@ -1,11 +1,11 @@
-import Image from "next/image";
 import { formatDate, type SiteConfig } from "@/lib/config";
+import { ClickableImage } from "@/components/ClickableImage";
 
 export function Hero({ config }: { config: SiteConfig }) {
   return (
     <section className="flex flex-col items-center text-center px-6 pt-20 pb-14 sm:pt-28 sm:pb-16">
       <div className="relative w-56 h-56 sm:w-72 sm:h-72">
-        <Image
+        <ClickableImage
           src={config.heroImage}
           alt={config.name}
           fill

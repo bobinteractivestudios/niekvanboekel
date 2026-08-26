@@ -1,5 +1,5 @@
-import Image from "next/image";
 import type { PostWithMedia } from "@/lib/db";
+import { ClickableImage } from "@/components/ClickableImage";
 
 function formatRelativeDate(iso: string): string {
   return new Intl.DateTimeFormat("nl-NL", {
@@ -26,10 +26,9 @@ export function MemoryCard({ post }: { post: PostWithMedia }) {
             item.kind === "video" ? (
               <video key={item.id} src={item.url} controls className="w-full rounded-lg" />
             ) : (
-              <Image
+              <ClickableImage
                 key={item.id}
                 src={item.url}
-                alt=""
                 width={400}
                 height={400}
                 className="w-full h-auto rounded-lg object-cover"
