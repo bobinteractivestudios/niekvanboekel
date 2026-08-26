@@ -1,5 +1,6 @@
 import type { PostWithMedia } from "@/lib/db";
 import { ClickableImage } from "@/components/ClickableImage";
+import { linkify } from "@/lib/linkify";
 
 function formatRelativeDate(iso: string): string {
   return new Intl.DateTimeFormat("nl-NL", {
@@ -13,7 +14,7 @@ export function MemoryCard({ post }: { post: PostWithMedia }) {
   return (
     <div className="rounded-2xl bg-surface p-5 ring-1 ring-border sm:p-6">
       <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">
-        {post.body}
+        {post.body && linkify(post.body)}
       </p>
 
       {post.media.length > 0 && (

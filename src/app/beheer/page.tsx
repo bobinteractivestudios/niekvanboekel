@@ -3,6 +3,7 @@ import { isAuthenticated } from "@/lib/auth";
 import { getAllPosts, type PostWithMedia } from "@/lib/db";
 import { AdminLoginForm } from "@/components/AdminLoginForm";
 import { deletePost, logout } from "@/app/beheer/actions";
+import { linkify } from "@/lib/linkify";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ function PostCard({ post }: { post: PostWithMedia }) {
         <span>{formatDateTime(post.created_at)}</span>
       </div>
       {post.body && (
-        <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{post.body}</p>
+        <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{linkify(post.body)}</p>
       )}
       <MediaGrid post={post} />
       <div className="mt-4">
