@@ -14,6 +14,12 @@ export function UploadForm({ blobEnabled }: { blobEnabled: boolean }) {
   const [uploadStatus, setUploadStatus] = useState<{ busy: boolean; error?: string }>({
     busy: false,
   });
+  // Belt-and-suspenders against double submits: disabling the button via
+  // React state still leaves a brief window — between the click and the
+  // re-render that actually sets the disabled attribute — where a fast
+  // double-tap fires the handler twice. This ref is checked synchronously,
+  // before any state update or async work, so it closes that gap.
+  const isSubmittingRef = useRef(false);
 
   function handleFilesChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -41,62 +47,69 @@ export function UploadForm({ blobEnabled }: { blobEnabled: boolean }) {
     <form
       ref={formRef}
       action={async (formData) => {
-        setUploadStatus({ busy: false, error: undefined });
+        if (isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
 
-        if (blobEnabled) {
-          // Photos/videos go straight from the browser to Vercel Blob —
-          // server actions on Vercel cap request bodies at ~4.5MB, which
-          // real photos blow past. Only the resulting URLs travel through
-          // the server action below.
-          const files = formData
-            .getAll("files")
-            .filter((entry): entry is File => entry instanceof File && entry.size > 0);
-          formData.delete("files");
+        try {
+          setUploadStatus({ busy: false, error: undefined });
 
-          if (files.length > MAX_FILES_PER_POST) {
-            setUploadStatus({
-              busy: false,
-              error: `Je kan maximaal ${MAX_FILES_PER_POST} bestanden per keer delen.`,
-            });
-            return;
-          }
+          if (blobEnabled) {
+            // Photos/videos go straight from the browser to Vercel Blob —
+            // server actions on Vercel cap request bodies at ~4.5MB, which
+            // real photos blow past. Only the resulting URLs travel through
+            // the server action below.
+            const files = formData
+              .getAll("files")
+              .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+            formData.delete("files");
 
-          if (files.length > 0) {
-            setUploadStatus({ busy: true });
-            const uploaded = [];
-            try {
-              for (const file of files) {
-                const kind = kindForType(file.type);
-                if (!kind) {
-                  throw new Error(`Bestandstype niet ondersteund: ${file.type || "onbekend"}`);
-                }
-                const pathname = `${crypto.randomUUID()}.${extensionFor(file.type)}`;
-                const blob = await uploadPresigned(pathname, file, {
-                  access: "public",
-                  handleUploadUrl: "/api/blob-upload",
-                  contentType: file.type,
-                });
-                uploaded.push({ url: blob.url, mimeType: file.type, kind });
-              }
-            } catch (error) {
+            if (files.length > MAX_FILES_PER_POST) {
               setUploadStatus({
                 busy: false,
-                error:
-                  error instanceof Error
-                    ? error.message
-                    : "Uploaden is niet gelukt. Probeer het opnieuw.",
+                error: `Je kan maximaal ${MAX_FILES_PER_POST} bestanden per keer delen.`,
               });
               return;
             }
-            formData.set("uploadedMedia", JSON.stringify(uploaded));
-            setUploadStatus({ busy: false });
-          }
-        }
 
-        await formAction(formData);
-        formRef.current?.reset();
-        previews.forEach((p) => URL.revokeObjectURL(p.url));
-        setPreviews([]);
+            if (files.length > 0) {
+              setUploadStatus({ busy: true });
+              const uploaded = [];
+              try {
+                for (const file of files) {
+                  const kind = kindForType(file.type);
+                  if (!kind) {
+                    throw new Error(`Bestandstype niet ondersteund: ${file.type || "onbekend"}`);
+                  }
+                  const pathname = `${crypto.randomUUID()}.${extensionFor(file.type)}`;
+                  const blob = await uploadPresigned(pathname, file, {
+                    access: "public",
+                    handleUploadUrl: "/api/blob-upload",
+                    contentType: file.type,
+                  });
+                  uploaded.push({ url: blob.url, mimeType: file.type, kind });
+                }
+              } catch (error) {
+                setUploadStatus({
+                  busy: false,
+                  error:
+                    error instanceof Error
+                      ? error.message
+                      : "Uploaden is niet gelukt. Probeer het opnieuw.",
+                });
+                return;
+              }
+              formData.set("uploadedMedia", JSON.stringify(uploaded));
+              setUploadStatus({ busy: false });
+            }
+          }
+
+          await formAction(formData);
+          formRef.current?.reset();
+          previews.forEach((p) => URL.revokeObjectURL(p.url));
+          setPreviews([]);
+        } finally {
+          isSubmittingRef.current = false;
+        }
       }}
       className="space-y-6"
     >
