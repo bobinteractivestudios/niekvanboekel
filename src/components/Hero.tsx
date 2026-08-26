@@ -19,7 +19,7 @@ export function Hero({ config }: { config: SiteConfig }) {
         {config.name}
       </h1>
       <p className="mt-2 text-sm text-foreground">
-        {formatDate(config.birthDate)} – {formatDate(config.deathDate)} ✝
+        {formatDate(config.birthDate)} – {formatDate(config.deathDate)} ✝︎
       </p>
     </section>
   );
