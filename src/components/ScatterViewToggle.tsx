@@ -11,18 +11,16 @@ export function ScatterViewToggle() {
       <label className="cursor-pointer">
         <input type="radio" name="scatterView" value="scatter" defaultChecked className="peer sr-only" />
         <span
-          className="flex h-9 w-9 items-center justify-center overflow-hidden text-muted ring-1 ring-border transition-colors peer-checked:text-foreground peer-checked:ring-foreground"
+          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md border-2 border-border text-muted transition-colors peer-checked:border-foreground peer-checked:text-foreground"
           title="Verspreid"
         >
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="block">
-            <rect x="-2" y="4" width="7" height="7" fill="currentColor" />
-            <rect x="14" y="-2" width="6" height="6" fill="currentColor" />
-            <rect x="29" y="6" width="9" height="9" fill="currentColor" />
-            <rect x="6" y="18" width="6" height="6" fill="currentColor" />
-            <rect x="20" y="20" width="7" height="7" fill="currentColor" />
-            <rect x="-2" y="28" width="6" height="6" fill="currentColor" />
-            <rect x="14" y="31" width="6" height="6" fill="currentColor" />
-            <rect x="30" y="29" width="8" height="8" fill="currentColor" />
+          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="block">
+            <rect x="6" y="8" width="34" height="20" fill="currentColor" />
+            <rect x="84" y="-4" width="20" height="20" fill="currentColor" />
+            <rect x="40" y="14" width="28" height="48" fill="currentColor" />
+            <rect x="76" y="36" width="26" height="28" fill="currentColor" />
+            <rect x="-2" y="68" width="28" height="34" fill="currentColor" />
+            <rect x="64" y="78" width="28" height="24" fill="currentColor" />
           </svg>
         </span>
         <span className="sr-only">Verspreide weergave</span>
@@ -31,13 +29,15 @@ export function ScatterViewToggle() {
       <label className="cursor-pointer">
         <input type="radio" name="scatterView" value="modular" className="peer sr-only" />
         <span
-          className="flex h-9 w-9 items-center justify-center overflow-hidden text-muted ring-1 ring-border transition-colors peer-checked:text-foreground peer-checked:ring-foreground"
+          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md border-2 border-border text-muted transition-colors peer-checked:border-foreground peer-checked:text-foreground"
           title="Modulair"
         >
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="block">
-            <rect x="0" y="0" width="10" height="36" fill="currentColor" />
-            <rect x="13" y="0" width="10" height="36" fill="currentColor" />
-            <rect x="26" y="0" width="10" height="36" fill="currentColor" />
+          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="block">
+            <rect x="0" y="14" width="28" height="16" fill="currentColor" />
+            <rect x="0" y="34" width="28" height="66" fill="currentColor" />
+            <rect x="34" y="8" width="30" height="60" fill="currentColor" />
+            <rect x="72" y="14" width="28" height="42" fill="currentColor" />
+            <rect x="72" y="62" width="28" height="24" fill="currentColor" />
           </svg>
         </span>
         <span className="sr-only">Modulaire weergave</span>
