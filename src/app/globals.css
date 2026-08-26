@@ -111,4 +111,28 @@ body {
     width: var(--w);
     margin-bottom: 0;
   }
+
+  /*
+   * Manual override, set by the two radio buttons in ScatterViewToggle —
+   * swaps the freeform layout above for the same ordered multi-column one
+   * tablets use. Pure CSS: :has() reads which radio is checked, no client
+   * JS involved. Higher specificity than the rules above, so this wins
+   * whenever it applies.
+   */
+  .scatter-view:has(input[value="modular"]:checked) .scatter {
+    position: static;
+    width: auto;
+    aspect-ratio: auto;
+    columns: 3;
+    column-gap: 1.5rem;
+  }
+
+  .scatter-view:has(input[value="modular"]:checked) .scatter-item {
+    position: static;
+    left: auto;
+    top: auto;
+    width: auto;
+    margin-bottom: 1.5rem;
+    break-inside: avoid;
+  }
 }

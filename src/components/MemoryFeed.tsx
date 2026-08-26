@@ -2,6 +2,7 @@ import type { FeedItem } from "@/lib/feed";
 import { getMediaDimensions } from "@/lib/imageSize";
 import { buildScatterLayout, type ScatterEntry } from "@/lib/scatter";
 import { ScatterCanvas } from "@/components/ScatterCanvas";
+import { ScatterViewToggle } from "@/components/ScatterViewToggle";
 
 async function toScatterEntry(item: FeedItem): Promise<ScatterEntry> {
   if (item.type === "photo") {
@@ -30,7 +31,8 @@ export async function MemoryFeed({ items }: { items: FeedItem[] }) {
           Nog geen herinneringen gedeeld — wees de eerste.
         </p>
       ) : (
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
+        <div className="scatter-view mx-auto max-w-[1600px] px-4 sm:px-8">
+          <ScatterViewToggle />
           <ScatterCanvas layout={layout} />
         </div>
       )}
