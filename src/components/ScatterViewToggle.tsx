@@ -5,9 +5,11 @@
  * purely visual choice. Hidden below the desktop breakpoint, where the
  * scattered layout doesn't apply anyway.
  *
- * Icon artwork supplied as ready-made SVGs; ported in with fill/stroke
- * swapped to currentColor so each icon (blocks and frame together) follows
- * the button's muted/selected color state.
+ * Icon artwork supplied as ready-made SVGs; ported in with the fill
+ * swapped to currentColor so the blocks follow the button's soft-gray
+ * default/selected color state. The frame is a plain CSS border instead
+ * of the source file's own stroke, which is easier to size reliably at
+ * this display size.
  */
 export function ScatterViewToggle() {
   return (
@@ -15,16 +17,10 @@ export function ScatterViewToggle() {
       <label className="cursor-pointer">
         <input type="radio" name="scatterView" value="scatter" defaultChecked className="peer sr-only" />
         <span
-          className="flex h-9 w-9 items-center justify-center text-muted transition-colors peer-checked:text-foreground"
+          className="flex h-7 w-7 items-center justify-center rounded-md border-[1.5px] border-gray-300 text-gray-300 transition-colors peer-checked:border-gray-500 peer-checked:text-gray-500"
           title="Verspreid"
         >
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 1000 1000"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ strokeLinecap: "round", strokeLinejoin: "round", strokeMiterlimit: 1.5 }}
-          >
+          <svg width="28" height="28" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
             <g transform="matrix(1.152118,0,0,0.997009,-76.039794,2.991027)">
               <g transform="matrix(1,0,0,0.218274,-67,0)">
                 <rect x="133" y="0" width="236" height="591" fill="currentColor" />
@@ -48,9 +44,6 @@ export function ScatterViewToggle() {
                 <rect x="133" y="0" width="236" height="591" fill="currentColor" />
               </g>
             </g>
-            <g transform="matrix(2.5,0,0,2.5,-1298.478452,-750)">
-              <rect x="519.391" y="300" width="400" height="400" fill="none" stroke="currentColor" strokeWidth="3.33" />
-            </g>
           </svg>
         </span>
         <span className="sr-only">Verspreide weergave</span>
@@ -59,16 +52,10 @@ export function ScatterViewToggle() {
       <label className="cursor-pointer">
         <input type="radio" name="scatterView" value="modular" className="peer sr-only" />
         <span
-          className="flex h-9 w-9 items-center justify-center text-muted transition-colors peer-checked:text-foreground"
+          className="flex h-7 w-7 items-center justify-center rounded-md border-[1.5px] border-gray-300 text-gray-300 transition-colors peer-checked:border-gray-500 peer-checked:text-gray-500"
           title="Modulair"
         >
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 1000 1000"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ strokeLinecap: "round", strokeLinejoin: "round", strokeMiterlimit: 1.5 }}
-          >
+          <svg width="28" height="28" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
             <g transform="matrix(1.152118,0,0,0.997009,-42.08515,2.991027)">
               <g transform="matrix(0.91715,0,0,0.218274,-49.496716,0)">
                 <rect x="133" y="0" width="236" height="591" fill="currentColor" />
@@ -88,9 +75,6 @@ export function ScatterViewToggle() {
               <g transform="matrix(0.91715,0,0,0.8511,530.111191,497)">
                 <rect x="133" y="0" width="236" height="591" fill="currentColor" />
               </g>
-            </g>
-            <g transform="matrix(2.5,0,0,2.5,-1298.478452,-750)">
-              <rect x="519.391" y="300" width="400" height="400" fill="none" stroke="currentColor" strokeWidth="3.33" />
             </g>
           </svg>
         </span>
