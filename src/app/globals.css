@@ -76,15 +76,28 @@ body {
 }
 
 /*
- * Scattered photos. On phones the items simply stack in one readable column;
- * from tablet up they take the absolute positions computed in lib/scatter.ts,
- * spread across the full width. No transitions or animations by design.
+ * Scattered photos, in three tiers. Phones: one readable column, in
+ * document order. Tablets: same sequential order, just spread into a
+ * two-column masonry so the extra width doesn't go to waste. Desktop and
+ * up: the freeform absolute positions computed in lib/scatter.ts. No
+ * transitions or animations by design.
  */
 .scatter-item {
   margin-bottom: 1.5rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1023px) {
+  .scatter {
+    columns: 2;
+    column-gap: 1.25rem;
+  }
+
+  .scatter-item {
+    break-inside: avoid;
+  }
+}
+
+@media (min-width: 1024px) {
   .scatter {
     position: relative;
     width: 100%;

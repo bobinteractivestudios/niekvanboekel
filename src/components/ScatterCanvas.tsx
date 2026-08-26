@@ -37,7 +37,7 @@ export function ScatterCanvas({ layout }: { layout: ScatterLayout }) {
                 src={item.src}
                 width={item.width}
                 height={item.height}
-                sizes="(min-width: 768px) 30vw, 100vw"
+                sizes="(min-width: 1024px) 30vw, (min-width: 768px) 50vw, 100vw"
                 className="block w-full h-auto"
               />
             )}
