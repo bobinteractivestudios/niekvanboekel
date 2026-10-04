@@ -31,7 +31,7 @@ export function ScatterCanvas({ layout }: { layout: ScatterLayout }) {
             {item.type === "card" ? (
               <MemoryCard post={item.post} />
             ) : item.kind === "video" ? (
-              <video src={item.src} controls className="block w-full h-auto" />
+              <video src={item.src} controls preload="metadata" className="block w-full h-auto" />
             ) : (
               <ClickableImage
                 src={item.src}

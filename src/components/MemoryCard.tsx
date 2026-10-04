@@ -25,7 +25,7 @@ export function MemoryCard({ post }: { post: PostWithMedia }) {
         >
           {post.media.map((item) =>
             item.kind === "video" ? (
-              <video key={item.id} src={item.url} controls className="w-full rounded-lg" />
+              <video key={item.id} src={item.url} controls preload="metadata" className="w-full rounded-lg" />
             ) : (
               <ClickableImage
                 key={item.id}
