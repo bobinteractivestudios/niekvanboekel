@@ -1,8 +1,8 @@
 # Herdenkingssite
 
-Een rustige plek om herinneringen te delen: foto's, video's en tekstjes,
-gebundeld rond één centrale foto en een officiële tekst. Bezoekers kunnen zelf
-iets uploaden; dat staat direct op de pagina, zonder tussenstap.
+Een rustige plek met herinneringen: foto's, video's en tekstjes, gebundeld
+rond één centrale foto en een officiële tekst. Het delen via de site staat
+uit — alle herinneringen staan als bestanden in de repository.
 
 ## De site lokaal starten
 
@@ -10,13 +10,7 @@ iets uploaden; dat staat direct op de pagina, zonder tussenstap.
 npm run dev
 ```
 
-Open daarna [http://localhost:3000](http://localhost:3000). Het beheerscherm
-(voor het verwijderen van berichten) staat op
-[http://localhost:3000/beheer](http://localhost:3000/beheer).
-
-Het admin-wachtwoord staat in `.env.local` (bestand `ADMIN_PASSWORD`). Pas dit
-gerust aan naar iets dat jij makkelijk onthoudt — herstart daarna `npm run dev`.
-Dit bestand wordt nooit in git meegenomen.
+Open daarna [http://localhost:3000](http://localhost:3000).
 
 ## Inhoud aanpassen
 
@@ -66,31 +60,25 @@ straks online niet "gecached" worden. Dat is in de code al geregeld
 (`force-dynamic` in `src/app/page.tsx`) — belangrijk om te weten als er ooit
 een CDN of caching-laag voor gezet wordt.
 
-## Hoe het delen werkt
+## De herinneringen
 
-- Iedereen kan via de knop "Deel een herinnering" (`/deel`) een tekstje,
-  foto('s) of video('s) insturen — of een combinatie daarvan.
-- Dat verschijnt meteen op de homepage: bijdragen met tekst als kaartje,
-  bijdragen met alleen foto's/video's los tussen de andere foto's. Er is
-  geen goedkeurstap — alles staat meteen live.
-- Op `/beheer` (met wachtwoord) zie je alles wat gedeeld is, met een
-  "Verwijderen"-knop erbij voor als er iets ongepasts tussen staat.
+- Alle gedeelde herinneringen staan in
+  [`content/memories.json`](content/memories.json): per herinnering de naam
+  (`author_name`, of `null` voor anoniem), de tekst (`body`, of `null` voor
+  een losse foto/video), de datum (`created_at`) en de bijbehorende foto's
+  en video's (`media`).
+- De foto's en video's zelf staan in `public/memories/`.
+- Iets verwijderen: haal het blok uit `memories.json` (en eventueel het
+  bestand uit `public/memories/`). Iets toevoegen: zet het bestand in
+  `public/memories/` en voeg een blok toe in hetzelfde formaat.
+- Er is geen database, geen uploadformulier en geen beheerpagina meer.
 
 ## Techniek (voor als je hier later iemand bij vraagt)
 
 - Next.js (App Router) + TypeScript + Tailwind.
-- Opslag heeft twee standen, die de code zelf kiest — jij hoeft daar niets
-  voor om te zetten:
-  - **Lokaal** (`npm run dev`, geen database- of Blob-variabelen gezet): een
-    SQLite-bestand in `data/memorial.db` en geüploade bestanden
-    in `public/uploads/`. Beide staan buiten git en leven alleen op deze
-    Mac.
-  - **Productie** (op Vercel, met een Postgres-database en Blob store
-    gekoppeld): berichten in Postgres, geüploade bestanden in Vercel Blob.
-  Zie [`src/lib/db/`](src/lib/db) en [`src/lib/uploads.ts`](src/lib/uploads.ts)
-  als je precies wil weten hoe dat omschakelen werkt.
-- Inloggen op `/beheer` gebeurt met een wachtwoord uit `.env.local`
-  (`ADMIN_PASSWORD`), niet met een los account.
+- Alles wordt uit bestanden in de repository geladen
+  ([`src/lib/memories.ts`](src/lib/memories.ts)); er zijn geen
+  omgevingsvariabelen, database of externe opslag nodig.
 
 ## Live zetten op Vercel, met de domeinnaam van Hostnet
 
@@ -110,23 +98,10 @@ Vercel bouwt de site rechtstreeks vanuit die repository.
    nog de omgevingsvariabelen instellen (volgende stap), anders moet je na
    deze stap opnieuw deployen.
 
-**3. Omgevingsvariabelen instellen** (Project → Settings → Environment Variables):
-- `ADMIN_PASSWORD` — hetzelfde wachtwoord als lokaal, of een nieuwe.
-- `SESSION_SECRET` — de waarde uit je lokale `.env.local` (of een nieuwe
-  lange willekeurige string).
-
-**4. Opslag koppelen** (Project → Storage):
-- **Postgres**: "Create Database" → Postgres (via de Neon-integratie) →
-  koppel 'm aan dit project. Vercel zet dan automatisch een connectie-string
-  klaar als environment variable — meestal `DATABASE_URL`, maar bij de
-  Neon-integratie heet die vaak `STORAGE_DATABASE_URL`. De code kijkt naar
-  beide namen, dus dat hoef je niet zelf gelijk te trekken.
-- **Blob**: "Create Database" → Blob → koppel 'm aan dit project. Vercel zet
-  hiervoor tegenwoordig meestal geen los token meer klaar, maar
-  `BLOB_STORE_ID` — de code herkent dat net zo goed en regelt de rest
-  (authenticatie) automatisch via Vercel zelf.
-- Na het koppelen: nog een keer deployen (Deployments → laatste deploy →
-  "Redeploy") zodat de nieuwe omgevingsvariabelen meegenomen worden.
+**3. Geen opslag of omgevingsvariabelen nodig** — de site draait volledig
+op de bestanden uit de repository. Een eerder gekoppelde Postgres-database
+en Blob store kunnen in Vercel (Project → Storage) ontkoppeld en verwijderd
+worden.
 
 **5. Domeinnaam koppelen** (Project → Settings → Domains):
 1. Vul `niekvanboekel.nl` in en klik "Add". Vercel laat dan zien welke
@@ -140,7 +115,7 @@ Vercel bouwt de site rechtstreeks vanuit die repository.
 
 **6. Testen**: bezoek de site op de Vercel-URL (`niekvanboekel.vercel.app`
 oid.) en straks op `niekvanboekel.nl` — kijk of de homepage laadt, probeer
-een testbericht via `/deel`, en keur 'm goed via `/beheer`.
+en of de herinneringen met foto's en video's zichtbaar zijn.
 
 Ik kan dit niet namens jou uitvoeren — de accountstappen bij Vercel en
 Hostnet vereisen jouw eigen inloggegevens — maar loop graag met je mee als

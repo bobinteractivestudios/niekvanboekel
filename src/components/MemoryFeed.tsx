@@ -28,7 +28,7 @@ export async function MemoryFeed({ items }: { items: FeedItem[] }) {
     <section className="pb-24">
       {items.length === 0 ? (
         <p className="px-6 text-center text-sm text-muted">
-          Nog geen herinneringen gedeeld — wees de eerste.
+          Nog geen herinneringen.
         </p>
       ) : (
         <div className="scatter-view mx-auto max-w-[1600px] px-4 sm:px-8">

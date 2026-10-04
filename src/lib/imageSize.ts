@@ -28,7 +28,12 @@ async function measureLocal(publicPath: string): Promise<Dimensions> {
   try {
     const metadata = await sharp(filePath).metadata();
     if (metadata.width && metadata.height) {
-      dimensions = { width: metadata.width, height: metadata.height };
+      // EXIF orientations 5–8 are rotated a quarter turn: the browser shows
+      // them with width and height swapped relative to the stored pixels.
+      const rotated = (metadata.orientation ?? 1) >= 5;
+      dimensions = rotated
+        ? { width: metadata.height, height: metadata.width }
+        : { width: metadata.width, height: metadata.height };
     }
   } catch {
     // Unreadable or unsupported file — fall back to the default ratio.
@@ -38,32 +43,9 @@ async function measureLocal(publicPath: string): Promise<Dimensions> {
   return dimensions;
 }
 
-async function measureRemote(url: string): Promise<Dimensions> {
-  const cached = cache.get(url);
-  if (cached) return cached;
-
-  let dimensions = DEFAULT_IMAGE;
-  try {
-    const response = await fetch(url);
-    if (response.ok) {
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const metadata = await sharp(buffer).metadata();
-      if (metadata.width && metadata.height) {
-        dimensions = { width: metadata.width, height: metadata.height };
-      }
-    }
-  } catch {
-    // Unreachable or unsupported file — fall back to the default ratio.
-  }
-
-  cache.set(url, dimensions);
-  return dimensions;
-}
-
 /**
- * Measures an image: a local path under /public (the gallery, bundled
- * read-only with every deploy) or a remote URL (uploaded media, stored in
- * Vercel Blob in production). Videos aren't probed — a sensible landscape
+ * Measures an image by its path under /public (the gallery and shared
+ * memories, bundled read-only with every deploy). Videos aren't probed — a sensible landscape
  * default is used, only to reserve space in the scatter layout.
  */
 export async function getMediaDimensions(
@@ -71,5 +53,5 @@ export async function getMediaDimensions(
   kind: "image" | "video"
 ): Promise<Dimensions> {
   if (kind === "video") return DEFAULT_VIDEO;
-  return src.startsWith("http") ? measureRemote(src) : measureLocal(src);
+  return measureLocal(src);
 }

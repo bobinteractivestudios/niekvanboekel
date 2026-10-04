@@ -1,4 +1,4 @@
-import type { PostWithMedia } from "@/lib/db";
+import type { PostWithMedia } from "@/lib/memories";
 import type { GalleryImage } from "@/lib/gallery";
 
 export type FeedItem =

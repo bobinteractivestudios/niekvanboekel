@@ -1,4 +1,4 @@
-import type { PostWithMedia } from "@/lib/db";
+import type { PostWithMedia } from "@/lib/memories";
 import { ClickableImage } from "@/components/ClickableImage";
 import { linkify } from "@/lib/linkify";
 
